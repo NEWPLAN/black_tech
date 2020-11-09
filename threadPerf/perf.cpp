@@ -1,12 +1,12 @@
 //-----------------mytop.cpp------------------------
-#include<stdio.h>
+#include <stdio.h>
 
-#include<stdlib.h>
-#include<string.h>
+#include <stdlib.h>
+#include <string.h>
 #include <string>
-#include<unistd.h>
-#include<fcntl.h>
-#include<ctype.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -15,7 +15,7 @@
 #include <vector>
 #include <assert.h>
 
-#include<iostream>
+#include <iostream>
 using namespace std;
 
 #define CK_TIME 1
@@ -25,20 +25,20 @@ struct FileAttribute
     string path;
     string name;
     unsigned long long size;
-    time_t  modify_timestamp;
-    bool    is_dir;
+    time_t modify_timestamp;
+    bool is_dir;
 };
 
 int EnumFile(vector<FileAttribute> &file_array, string _dir)
 {
-    DIR* dir = opendir(_dir.c_str()); //(".")
+    DIR *dir = opendir(_dir.c_str()); //(".")
     if (dir == NULL)
         return 0;
 
-    struct dirent* entry;
+    struct dirent *entry;
     while ((entry = readdir(dir)))
     {
-        if ( strcmp( entry->d_name, ".") == 0 || strcmp( entry->d_name, "..") == 0 )
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
         FileAttribute fi;
         fi.name = entry->d_name;
@@ -50,7 +50,7 @@ int EnumFile(vector<FileAttribute> &file_array, string _dir)
         else
             path = _dir + "/" + fi.name;
         struct stat statbuf;
-        if (stat( path.c_str(), &statbuf ) < 0)
+        if (stat(path.c_str(), &statbuf) < 0)
         {
             closedir(dir);
             printf("stat error ! message: %s\n", strerror(errno));
@@ -70,10 +70,12 @@ int EnumFile(vector<FileAttribute> &file_array, string _dir)
     return file_array.size();
 }
 
-char * skip_token(const char *p)
+char *skip_token(const char *p)
 {
-    while (isspace(*p)) p++;
-    while (*p && !isspace(*p)) p++;
+    while (isspace(*p))
+        p++;
+    while (*p && !isspace(*p))
+        p++;
     return (char *)p;
 }
 
@@ -110,7 +112,7 @@ int get_sys_mem(char *mem)
     p = skip_token(p);
     cm = strtoul(p, &p, 10); /* cached memory */
 
-    for (int i = 0; i < 8 ; i++)
+    for (int i = 0; i < 8; i++)
     {
         p++;
         p = strchr(p, '\n');
@@ -128,15 +130,15 @@ int get_sys_mem(char *mem)
     return tm;
 }
 
-int get_phy_mem(pid_t pid, char* ph)
+int get_phy_mem(pid_t pid, char *ph)
 {
-    char file[64] = {0};//文件名
-    FILE *fd;         //定义文件指针fd
-    char line_buff[256] = {0};  //读取行的缓冲区
+    char file[64] = {0};       //文件名
+    FILE *fd;                  //定义文件指针fd
+    char line_buff[256] = {0}; //读取行的缓冲区
     sprintf(file, "/proc/%d/status", pid);
 
     //fd = fopen (file, "r");
-    if ((fd = fopen (file, "r")) == NULL)
+    if ((fd = fopen(file, "r")) == NULL)
     {
         printf("Can't open file\n");
         exit(1);
@@ -144,29 +146,29 @@ int get_phy_mem(pid_t pid, char* ph)
 
     //获取vmrss:实际物理内存占用
     int i;
-    char name1[32];//存放项目名称
-    int vmrss;//存放内存峰值大小
+    char name1[32]; //存放项目名称
+    int vmrss;      //存放内存峰值大小
     char name2[32];
     int vmsize;
     for (i = 0; i < 12; i++)
     {
-        fgets (line_buff, sizeof(line_buff), fd);
+        fgets(line_buff, sizeof(line_buff), fd);
     }
-    fgets (line_buff, sizeof(line_buff), fd);
-    sscanf (line_buff, "%s %d", name2, &vmsize);
+    fgets(line_buff, sizeof(line_buff), fd);
+    sscanf(line_buff, "%s %d", name2, &vmsize);
     //fprintf (stderr, "====%s：%d====\n", name2,vmsize);
 
     for (i = 0; i < 2; i++)
     {
-        fgets (line_buff, sizeof(line_buff), fd);
+        fgets(line_buff, sizeof(line_buff), fd);
     }
 
-    fgets (line_buff, sizeof(line_buff), fd);//读取VmRSS这一行的数据,VmRSS在第15行
-    sscanf (line_buff, "%s %d", name1, &vmrss);
+    fgets(line_buff, sizeof(line_buff), fd); //读取VmRSS这一行的数据,VmRSS在第15行
+    sscanf(line_buff, "%s %d", name1, &vmrss);
 
     //fprintf (stderr, "====%s：%d====\n", name1,vmrss);
 
-    fclose(fd);     //关闭文件fd
+    fclose(fd); //关闭文件fd
     sprintf(ph, "VIRT=%dKB RES=%dKB", vmsize, vmrss);
     //printf("=+=+=%s\n",ph);
     return vmrss;
@@ -178,29 +180,29 @@ int get_process_time(pid_t pid, int tid)
     char pname[64];
     char state;
     int ppid, pgrp, session, tty, tpgid;
-    unsigned int    flags, minflt, cminflt, majflt, cmajflt;
+    unsigned int flags, minflt, cminflt, majflt, cmajflt;
     int utime, stime, cutime, cstime, counter, priority;
-    unsigned int  timeout, itrealvalue;
-    int           starttime;
-    unsigned int  vsize, rss, rlim, startcode, endcode, startstack, kstkesp, kstkeip;
+    unsigned int timeout, itrealvalue;
+    int starttime;
+    unsigned int vsize, rss, rlim, startcode, endcode, startstack, kstkesp, kstkeip;
     int signal, blocked, sigignore, sigcatch;
-    unsigned int  wchan;
+    unsigned int wchan;
 
-    char file_stat [1024];
+    char file_stat[1024];
     if (tid == 0)
     {
-        sprintf( file_stat, "/proc/%d/stat", pid );
+        sprintf(file_stat, "/proc/%d/stat", pid);
     }
     else if (tid != -1)
     {
-        sprintf( file_stat, "/proc/%d/task/%d/stat", pid, tid );
+        sprintf(file_stat, "/proc/%d/task/%d/stat", pid, tid);
     }
 
     //printf("open file %s\n",file_stat);
 
-    FILE* fid;
+    FILE *fid;
     //fid = fopen(file_stat,"r");
-    if ((fid = fopen (file_stat, "r")) == NULL)
+    if ((fid = fopen(file_stat, "r")) == NULL)
     {
         printf("Can't open file\n");
         exit(1);
@@ -212,17 +214,17 @@ int get_process_time(pid_t pid, int tid)
 
     //printf("+++szStatStr=%s\n",szStatStr);
 
-    sscanf (szStatStr, "%u", &pid);
-    char  *sp, *t;
-    sp = strchr (szStatStr, '(') + 1;
-    t = strchr (szStatStr, ')');
-    strncpy (pname, sp, t - sp);
+    sscanf(szStatStr, "%u", &pid);
+    char *sp, *t;
+    sp = strchr(szStatStr, '(') + 1;
+    t = strchr(szStatStr, ')');
+    strncpy(pname, sp, t - sp);
 
-    sscanf (t + 2, "%c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
-            /*     1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
-            &state, &ppid, &pgrp, &session, &tty, &tpgid, &flags, &minflt, &cminflt, &majflt, &cmajflt, &utime, &stime, &cutime, &cstime, &counter,
-            &priority, &timeout, &itrealvalue, &starttime, &vsize, &rss, &rlim, &startcode, &endcode, &startstack,
-            &kstkesp, &kstkeip, &signal, &blocked, &sigignore, &sigcatch, &wchan);
+    sscanf(t + 2, "%c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
+           /*     1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
+           &state, &ppid, &pgrp, &session, &tty, &tpgid, &flags, &minflt, &cminflt, &majflt, &cmajflt, &utime, &stime, &cutime, &cstime, &counter,
+           &priority, &timeout, &itrealvalue, &starttime, &vsize, &rss, &rlim, &startcode, &endcode, &startstack,
+           &kstkesp, &kstkeip, &signal, &blocked, &sigignore, &sigcatch, &wchan);
     /*printf("-------%c %d %d %d %d %d %u %u %u %u %u -%d -%d -%d -%d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
                     state,ppid,pgrp,session,tty,tpgid,flags,minflt,cminflt,majflt,cmajflt,utime,stime,cutime,cstime,counter,
                     priority,timeout,itrealvalue,starttime,vsize,rss,rlim,startcode,endcode,startstack,
@@ -234,7 +236,7 @@ int get_process_time(pid_t pid, int tid)
     return p_cpu;
 }
 
-string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
+string GetCpuMem(size_t pid, string &cpu, string &mem, int tid = 0)
 {
     FILE *fp;
     char buf[128];
@@ -244,19 +246,19 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
     char cmem[256];
     char process[1028];
 
-    unsigned int  user, nice, sys, idle, iowait, irq, softirq, steal;
+    unsigned int user, nice, sys, idle, iowait, irq, softirq, steal;
 
-    unsigned int  all1, all2;
+    unsigned int all1, all2;
 
-    unsigned int   us1, ni1, sy1, id1, io1, ir1, so1, st1;
-    unsigned int   us2, ni2, sy2, id2, io2, ir2, so2, st2;
+    unsigned int us1, ni1, sy1, id1, io1, ir1, so1, st1;
+    unsigned int us2, ni2, sy2, id2, io2, ir2, so2, st2;
 
-    unsigned int  p_cpu1, p_cpu2;
+    unsigned int p_cpu1, p_cpu2;
 
     float usage, niage, syage, idage, ioage, irage, soage, stage;
 
     //fp = fopen("/proc/stat","r");
-    if ((fp = fopen ("/proc/stat", "r")) == NULL)
+    if ((fp = fopen("/proc/stat", "r")) == NULL)
     {
         printf("Can't open file\n");
         exit(1);
@@ -270,9 +272,15 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
 
     all1 = user + nice + sys + idle + iowait + irq + softirq + steal;
 
-    us1 = user; ni1 = nice; sy1 = sys; id1 = idle;
-    io1 = iowait; ir1 = irq; so1 = softirq; st1 = steal;
-//=============================================
+    us1 = user;
+    ni1 = nice;
+    sy1 = sys;
+    id1 = idle;
+    io1 = iowait;
+    ir1 = irq;
+    so1 = softirq;
+    st1 = steal;
+    //=============================================
 
     char file_dir[256];
     sprintf(file_dir, "/proc/%d/task", pid);
@@ -291,20 +299,19 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
         {
             _dir = (*it).name;
             //cout<<"_dir="<<_dir<<endl;
-            a[i] = atoi( _dir.c_str());
+            a[i] = atoi(_dir.c_str());
             i++;
         }
         for (int j = 0; j < file_sum; j++)
         {
-            b[j] = get_process_time( pid, a[j]);
-
+            b[j] = get_process_time(pid, a[j]);
         }
     }
     else
     {
-        p_cpu1 = get_process_time( pid, tid);
+        p_cpu1 = get_process_time(pid, tid);
     }
-//===========================================
+    //===========================================
     /*第二次取数据*/
     sleep(CK_TIME);
     rewind(fp);
@@ -320,12 +327,18 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
 
     //printf("%s,%d,%d,%d,%d,%d,%d,%d,%d\n",tcpu,user,nice,sys,idle,iowait,irq,softirq,steal);
 
-    us2 = user; ni2 = nice; sy2 = sys; id2 = idle;
-    io2 = iowait; ir2 = irq; so2 = softirq; st2 = steal;
+    us2 = user;
+    ni2 = nice;
+    sy2 = sys;
+    id2 = idle;
+    io2 = iowait;
+    ir2 = irq;
+    so2 = softirq;
+    st2 = steal;
     all2 = user + nice + sys + idle + iowait + irq + softirq + steal;
 
-    usage = (float)((us2 - us1) + (ni2 - ni1)) / (all2 - all1) * 100 ;
-    syage = (float)((sy2 - sy1) + (ir2 - ir1) + (so2 - so1)) / (all2 - all1) * 100 ;
+    usage = (float)((us2 - us1) + (ni2 - ni1)) / (all2 - all1) * 100;
+    syage = (float)((sy2 - sy1) + (ir2 - ir1) + (so2 - so1)) / (all2 - all1) * 100;
 
     idage = (float)(id2 - id1) / (all2 - all1) * 100;
     niage = (float)(ni2 - ni1) / (all2 - all1) * 100;
@@ -338,12 +351,12 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
     {
         for (int j = 0; j < file_sum; j++)
         {
-            b2[j] = get_process_time( pid, a[j]);
+            b2[j] = get_process_time(pid, a[j]);
         }
     }
     else
     {
-        p_cpu2 = get_process_time( pid, tid);
+        p_cpu2 = get_process_time(pid, tid);
     }
 
     int NUM_PROCS = sysconf(_SC_NPROCESSORS_CONF);
@@ -384,7 +397,7 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
         for (int j = 0; j < file_sum; j++)
         {
             //printf("PID=%d  TID=%d  %.2f%%CPU  %.2f%%MEM %s\n",pid,a[j],prcpu[j],pmem,ph);
-            offset += sprintf(process + offset, "PID=%d  TID=%d  %.2f%%CPU  %.2f%%MEM %s\n", pid, a[j], prcpu[j], pmem, ph);
+            offset += sprintf(process + offset, "PID:%d  TID:%d  %6.2f%%CPU  %6.2f%%MEM %s\n", pid, a[j], prcpu[j], pmem, ph);
         }
         //printf("%s\n",process);
     }
@@ -399,34 +412,38 @@ string GetCpuMem( size_t pid, string &cpu , string &mem, int tid = 0 )
     return s;
 }
 
-void usage(char** argvs)
+void usage(char **argvs)
 {
-	printf("%s [pid] [tid]\n",argvs[0]);
-	printf("pid is the process id and optional. In default, it refer itself\n");
-	printf("tid is the threads id and optional. For all threads, set tid=-1\n");
+    printf("%s [pid] [tid]\n", argvs[0]);
+    printf("pid is the process id and optional. By default, it refers itself\n");
+    printf("tid is the threads id and optional. For all threads, set tid=-1\n");
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     int pid = 0;
     int tid = 0;
     string cpu, mem;
-	usage(argv);
-    if ( argc > 1 )
+    usage(argv);
+    if (argc > 1)
         pid = atoi(argv[1]);
     else
     {
         pid = getpid();
     }
-    if ( argc > 2 )
+    if (argc > 2)
         tid = atoi(argv[2]);
 
-    //printf("pid=%d,tid=%d\n",pid,tid);
+    printf("pid=%d,tid=%d\n", pid, tid);
+    if (pid == 0 && tid == 0)
+        return -1;
 
     while (1)
     {
-        cout << "----------------------------" << endl;
+
         string s = GetCpuMem(pid, cpu, mem, tid);
+        system("clear");
+        cout << "----------------------------" << endl;
         cout << s << endl;
     }
     return 0;
