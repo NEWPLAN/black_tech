@@ -50,8 +50,8 @@ newplan::IPQoSHelper::set_socket_reuse(sock);
 ```
 运行客户端：
 ```shell
-~/p/t/n/server> gcc client.c -o client
-~/p/t/n/server> ./client
+~/p/t/n/client> g++ client.cpp -o client
+~/p/t/n/client> ./client
 [INFO] Having modified IP ToS for socket: 3 from 0x0(old) to 0x10(new)
 [INFO] Having modified IP priority for socket: 3 from 6(old) to 4(new)
 Message form server: [0] Hello World!
