@@ -78,3 +78,8 @@ Message form server: [5] Hello World!
 
 ## Reference
 [Linux traffic control](https://tonydeng.github.io/sdn-handbook/linux/tc.html)
+
+[套接字参数设置详解](https://blog.csdn.net/zymill/article/details/78900952)
+```c
+inet->tos = val，sk->sk_priority = rt_tos2priority(val)
+```
